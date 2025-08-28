@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_avancado/builders/observable_state_builder.dart';
 import 'package:flutter_avancado/controllers/state_observable.dart';
 import 'package:flutter_avancado/counter_state.dart';
-import 'dart:math';
+import 'package:flutter_avancado/mixins/change_state_mixin.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,12 +29,17 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with ChangeStateMixin {
   final counterState = CounterState();
   final observableCounter = StateObservable(0);
+  late StateObservable<int> newMixinCounter;
 
-  void callback() {
-    setState(() {});
+  @override
+  void initState() {
+    useChangeState(counterState);
+    useChangeState(observableCounter);
+    newMixinCounter = useStateObservable(0);
+    super.initState();
   }
 
   @override
@@ -46,27 +50,32 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ObservableStateBuilder(
-              stateObservable: observableCounter,
-              listener: (context, state) {
-                ScaffoldMessenger.of(context).removeCurrentSnackBar();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Valor do counter: $state")),
-                );
+            Text(
+              'Contador CounterState: ${counterState.counter}',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                counterState.increment();
               },
-              buildWhen: (oldState, newState) {
-                return (newState as int) % 2 == 0;
-              },
-              builder: (context, state, child) {
-                return Text(
-                  'Contador Observable: $state',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                );
-              },
+              child: const Text('Incrementar counter'),
+            ),
+            Text(
+              'Contador Observable: ${observableCounter.state}',
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
             ElevatedButton(
               onPressed: () {
                 observableCounter.state++;
+              },
+              child: const Text('Incrementar Observable'),
+            ),
+            Text(
+              'Contador newMixinStateObservable: ${newMixinCounter.state}',
+            ),
+            ElevatedButton(
+              onPressed: () {
+                newMixinCounter.state++;
               },
               child: const Text('Incrementar Observable'),
             ),
