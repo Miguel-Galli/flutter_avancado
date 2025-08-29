@@ -1,6 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_avancado/controllers/state_observable.dart';
+import 'package:flutter_avancado/extensions/state_observable_extensions.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'testable/controllers/product_controller.dart';
+import 'testable/states/base_state.dart';
 
 void main() {
   group("Should test StateObservable", () {
@@ -13,7 +17,7 @@ void main() {
 
       //Assert
 
-      expect(counterState, 1);
+      expect(counterState.state, 1);
     });
 
     test(
@@ -81,58 +85,4 @@ void main() {
   });
 }
 
-abstract class BaseState {}
 
-class InitialState extends BaseState {}
-
-class LoadingState extends BaseState {}
-
-class SuccessState<T extends Object> extends BaseState {
-  final T data;
-
-  SuccessState({required this.data});
-}
-
-class ErrorState extends BaseState {
-  final String message;
-
-  ErrorState({required this.message});
-}
-
-class Product {
-  final int id;
-  final String name;
-
-  Product({required this.id, required this.name});
-}
-
-class ProductController extends StateObservable<BaseState> {
-  ProductController() : super(InitialState());
-
-  void getProducts() {
-    state = LoadingState();
-
-    state = SuccessState(
-      data: [
-        Product(id: 1, name: "Primeiro produto"),
-        Product(id: 2, name: "Segundo produto"),
-      ],
-    );
-  }
-
-  void generateError() {
-    state = LoadingState();
-
-    try {
-      throw Exception();
-      state = SuccessState(
-        data: [
-          Product(id: 1, name: "Primeiro produto"),
-          Product(id: 2, name: "Segundo produto"),
-        ],
-      );
-    } catch (e) {
-      state = ErrorState(message: e.toString());
-    }
-  }
-}

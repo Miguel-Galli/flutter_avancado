@@ -1,9 +1,11 @@
+// ignore_for_file: avoid_shadowing_type_parameters
+
 import 'package:flutter/material.dart';
 import 'package:flutter_avancado/controllers/change_state.dart';
 import 'package:flutter_avancado/controllers/state_observable.dart';
 
 mixin ChangeStateMixin<T extends StatefulWidget> on State<T> {
-  List<ChangeState> _changeStates = [];
+  final List<ChangeState> _changeStates = [];
 
   void useChangeState(changeState) {
     changeState.addListener(_callback);
